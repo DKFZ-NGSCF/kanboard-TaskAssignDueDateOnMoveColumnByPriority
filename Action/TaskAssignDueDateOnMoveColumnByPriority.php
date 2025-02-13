@@ -1,11 +1,12 @@
 <?php
 
-namespace Kanboard\Action;
+namespace Kanboard\Plugin\TaskAssignDueDateOnMoveColumnByPriority\Action;
 
 use Kanboard\Model\TaskModel;
+use Kanboard\Action\Base;
 
 /**
- * Set the due date when task move away from certain column
+ * Set the due date when task move away from certain column based on priority
  *
  * @package Kanboard\Action
  * @author  Lasse Faber
@@ -68,7 +69,7 @@ class TaskAssignDueDateOnMoveColumnByPriority extends Base
     }
 
     /**
-     * Execute the action (set the task color)
+     * Execute the action (Update the due date)
      *
      * @access public
      * @param  array   $data   Event data dictionary
@@ -77,15 +78,13 @@ class TaskAssignDueDateOnMoveColumnByPriority extends Base
     public function doAction(array $data)
     {
         $priority = (int)$this->getParam('priority');
-
-        if ($priority == $data['priority']) {
+        if ($priority == $data['task']['priority']) {
             $values = array(
                 'id' => $data['task_id'],
                 'date_due' => strtotime('+'.$this->getParam('duration').'days'),
             );
             return $this->taskModificationModel->update($values, false);
         }
-        return false;
     }
 
     /**
