@@ -11,5 +11,5 @@ This action will assign a due date to a task that was moved from a specific colu
 
 ## Installation
 
-- Create a directory AutomaticAction under the folder plugins
-- Copy all source files in this new directory
+- Download the repository to your `kanboard/plugins` directory.
+- (Optional) Rename directory to TaskAssignDueDateOnMoveColumnByPriority
