@@ -6,12 +6,12 @@ use Kanboard\Model\TaskModel;
 use Kanboard\Action\Base;
 
 /**
- * Set the due date when task move away from certain column based on priority
+ * Set the due date when a task is moved away from a specific column to a specific column based on priority
  *
  * @package Kanboard\Action
  * @author  Lasse Faber
  */
-class TaskAssignDueDateOnMoveColumnByPriority extends Base
+class TaskAssignDueDateOnMoveFromToColumnByPriority extends Base
 {
     /**
      * Get automatic action description
@@ -21,7 +21,7 @@ class TaskAssignDueDateOnMoveColumnByPriority extends Base
      */
     public function getDescription()
     {
-        return t('Automatically set the due date when the task is moved away from a specific column based on priority');
+        return t('Assign a due date when moved from a specific column to a specific column based on priority');
     }
 
     /**
@@ -48,7 +48,8 @@ class TaskAssignDueDateOnMoveColumnByPriority extends Base
         return array(
             'priority' => t('Priority'),
             'duration' => t('Duration in days'),
-            'column_id' => t('Column'),
+            'src_column_id' => t('Source column'),
+            'dst_column_id' => t('Destination column'),
         );
     }
 /**
@@ -65,6 +66,7 @@ class TaskAssignDueDateOnMoveColumnByPriority extends Base
                 'project_id',
             ),
             'src_column_id',
+            'dst_column_id'
         );
     }
 
@@ -77,14 +79,11 @@ class TaskAssignDueDateOnMoveColumnByPriority extends Base
      */
     public function doAction(array $data)
     {
-        $priority = (int)$this->getParam('priority');
-        if ($priority == $data['task']['priority']) {
-            $values = array(
-                'id' => $data['task_id'],
-                'date_due' => strtotime('+'.$this->getParam('duration').'days'),
-            );
-            return $this->taskModificationModel->update($values, false);
-        }
+        $values = array(
+            'id' => $data['task_id'],
+            'date_due' => strtotime('+'.$this->getParam('duration').'days'),
+        );
+        return $this->taskModificationModel->update($values, false);
     }
 
     /**
@@ -96,6 +95,10 @@ class TaskAssignDueDateOnMoveColumnByPriority extends Base
      */
     public function hasRequiredCondition(array $data)
     {
-        return !empty($data['src_column_id']) && $data['src_column_id'] == $this->getParam('column_id');
+        return !empty($data['src_column_id']) &&
+               !empty($data['dst_column_id']) &&
+               $data['src_column_id'] == $this->getParam('src_column_id') &&
+               $data['dst_column_id'] == $this->getParam('dst_column_id') &&
+               $data['task']['priority'] == $this->getParam('priority');
     }
 }
